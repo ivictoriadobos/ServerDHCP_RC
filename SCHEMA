@@ -1,0 +1,82 @@
+dhcp aloca adrese ip dintr un pool in mod 1) dinamic (din adress pool, gen pt orice device random care se conn); deviceul trebuie sa faca renew la adresa ,
+daca nu face, adresa ip va fi alocata altui device
+(adresa ip nu trebuie dealocata imediat ce deviceul inchide conexiunea, ci doar dupa acel lease time, gen daca
+intr o cafeterie vine un om, se conecteaza la reteaua wifi, pleaca 1 ora, cand se intoarce vrem ca adresa ip sa fie aceeasi
+de acum 1 ora, dar sa nu fie alocata mai mult de 2 zile sa zicem (acesta fiind leasetimeul))
+2)automatic
+3)manual
+
+
+
+
+tipuri de mesaje:
+1) discover
+broadcast to network
+requests network configs
+all devices receives this message
+ip dest: 255.255.255.255
+ip src : 0.0.0.0
+mac dest ff.ff.ff.ff.ff.ff
+mac src: 00.00.aa.aa.aa.aa  // umm nu chiar, asa a pus el in exemplu
+udp on port 67  // only dhcp servers should listen on this port
+
+
+2) offer
+
+serverul dhcp ofera adresa ip deviceului care a transmis broadcast
+faza e ca mai multe servere pot raspunde deviceului, deci doar unul va raspunde
+
+ex: 2 servere care asculta
+daca ambele au adrese ip valabile, vor raspunde ambele. Sa zicem ca primul server raspunde primul
+
+se ofera adresa ip, subnet and gateway info, mac dest(se stie, deci poate trimite un mesaj direct, ramane la decizia serverului
+daca vrea sa trimita broadcast mesajul de offer sau trmite mesaj direct), mac src, ip dest (broadcast), ip src (ipul serverului),
+unicast udp on port 68 (used by dhcp servers to respond to devices)
+
+care ip va fi acceptat de client? si serverul 1 si serverul 2 au oferit => Se va sti prin mesajul request de la client
+
+3) request
+deviceul trimite iar broadcast ca vrea acea adresa ip oferita in offer
+alte servere dhcp vor retrage conexiunea
+
+trimite iar broadcast :
+mac dest : ff.ff.ff.ff.ff.ff
+mac src : 00.00.aa.aa.aa.aa
+ip dest : 255.255.255.255
+ip src : 0.0.0.0
+udp on port 67
+
+
+
+4) acknowledgement
+dhcp (broadcast or unicast message) informeaza deviceul ca poate folosi acea adresa
+informatii aditionale : dns, gateway address..
+
+from dhcp server to client:
+ip address
+subnet and gateway info
+all other dhcp config
+ip dest: 255.255.255.255
+unicast udp on port 68
+
+
+5) nack
+-deviceul nu poate folosi acea adresa ip
+server declines the offer
+-solution: start the process from beggining and try again
+
+6)decline message
+- e mesaj de la client...  daca il primeste serverul inseamna ca a trimis o adresa ip deja "in use", clientul a verificat asta
+therefore ia si pune acea adresa ip in categoria "in use"
+
+
+7) release
+mesaj de la client, clientul anunta ca nu mai vrea ip ul
+
+
+dhcp leases:
+
+first half of the lease : the client won't try to renew the lease time
+50% - 87.5% va fi perioada de incercare de renew de lease time
+87.5 -> .. perioada in care incearca sa contacteze orice server dhcp in speranta sa primeasca o noua adresa ip
+
