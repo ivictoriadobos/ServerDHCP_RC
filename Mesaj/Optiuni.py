@@ -19,20 +19,32 @@ class Optiuni:
     # DESCRIERE DE OPTIUNI INTALNUTE IN ACEST PROGRAM
     # Optiunea 1 : Ofera masca de retea.
     # Optiunea 2 : Ofera diferenta in secunde fata de UTC.
-    # Optiunea 3 : Ofera adresa de retea (gatewayul) clientului.The router option specifies a list of IP addresses for routers on the client's subnet. Routers SHOULD be listed in order of preference.
+
+    # Optiunea 3 : Ofera adresa de retea (gatewayul) clientului.The router option specifies a list of
+                # IP addresses for routers on the client's subnet. Routers SHOULD be listed in order of preference.
+
     # Optiunea 6 : Această opțiune specifică o listă de servere DNS disponibile pentru client.
+
     # Optiunea 12 : Ofera numele clientului ( e optiune de client, clientul ar fi interesat sa trimita numele pentru a putea fi recunoscut de server)
+
     # Optiunea 15 : Această opțiune specifică numele de domeniu pe care clientul ar trebui să îl utilizeze atunci când rezolvă numele de gazdă prin intermediul DNS.
-    # Optiunea 28 : Această opțiune specifică adresa de difuzare utilizată în subrețeaua clientului
+
+    # Optiunea 28 : Această opțiune specifică adresa de difuzie utilizată în subrețeaua clientului
+
     # Optiunea 50 : Această opțiune  este utilizată într-o cerere de client (DHCPDISCOVER) pentru a permite clientului să solicite alocarea unei anumite adrese IP.
 
-     # Optiunea 51 : Această opțiune este utilizată într-o cerere de client (DHCPDISCOVER sau DHCPREQUEST) pentru a permite clientului să solicite un timp de închiriere pentru adresa IP. Într-un răspuns server (DHCPOFFER), un server DHCP folosește această opțiune pentru a specifica timpul de închiriere pe care este dispus să îl ofere.
+     # Optiunea 51 : Această opțiune este utilizată într-o cerere de client (DHCPDISCOVER sau DHCPREQUEST) pentru a permite clientului
+                    # să solicite un timp de închiriere pentru adresa IP. Într-un răspuns server (DHCPOFFER), un server DHCP folosește
+                    #această opțiune pentru a specifica timpul de închiriere pe care este dispus să îl ofere.
+
     # Optiunea 53 : Această opțiune este utilizată pentru a transmite tipul mesajului DHCP.
-    # Optiunea 54 : Server Identifier (the ip of the selected server) : Aceasta optiune este utilizata in DHCPOFFER si DHCPREQUEST (optional in DHCPACK si DHCPNAK) pentru a putea oferi clientului posibilitatea de a distinge ofertele de lease.
-    # Optiunea 55 :
+
+    # Optiunea 54 : Server Identifier (the ip of the selected server) : Aceasta optiune este utilizata in DHCPOFFER si
+                    # DHCPREQUEST (optional in DHCPACK si DHCPNAK) pentru a putea oferi clientului posibilitatea de a distinge ofertele de lease.
+
+    # Optiunea 55 : parameter request list
     # Optiunea 61 :This option is used by DHCP clients to specify their unique identifier.DHCP servers use this value to index their database of address bindings.
 
-    # Optiunea 60 :
 #explicatii mai bune : http://wiki.snom.com/Networking/DHCP/Options
     optiuni_valabile = [1,2,3,6,12,15,28,50,51,53,54,55]
 
@@ -147,10 +159,10 @@ class Optiuni:
                 optiuni_cerute= []
                 optiuni = self.optiuni_data[cod_optiune]
                 ind = 0
-                print("\nOptiuni.decodeazaOptiuni; valoarea optiunii 55 este : ")
+                # print("\nOptiuni.decodeazaOptiuni; valoarea optiunii 55 este : ")
                 while ind < len(optiuni):
                     optiuni_cerute.append(int(optiuni[ind:ind+2], base=16))
-                    print(str(int(optiuni[ind:ind+2], base=16)))
+                    # print(str(int(optiuni[ind:ind+2], base=16)))
                     ind += 2
                 self.optiuni_data[cod_optiune] = [cod for cod in optiuni_cerute if cod in self.optiuni_valabile] #poate clientul a cerut si luna de pe cer, dar noi avem doar
                                                                                                                 # o submultime din optiunile posibile

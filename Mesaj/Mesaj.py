@@ -249,3 +249,12 @@ class Mesaj:
                 endIndex += 2
             print("\nMesaj : returning this string after parsing : " + string )
             return string
+
+    def getTypeOfMessage(self):
+        return self.op
+
+    def setTypeOfMessage(self, string):
+        self.op = string
+
+    def setYiaddr(self, string):
+        self.yiaddr = string
