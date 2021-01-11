@@ -4,6 +4,9 @@ from typing import Any, Optional
 from Mesaj import Mesaj
 
 
+context = None
+"""Referinta la contextul actual"""
+
 
 def getResponseHandlerChain():
     handleDiscover = DiscoverHandler()
@@ -26,6 +29,8 @@ class ResponseHandler(ABC):
     The Handler interface declares a method for building the chain of handlers.
     It also declares a method for executing a request.
     """
+    options_from_discover ={}
+    lease_time = {} #dictionar de retine ce leasetime are fiecare client
 
     @abstractmethod
     def set_next(self, handler: ResponseHandler) -> ResponseHandler:
@@ -34,6 +39,12 @@ class ResponseHandler(ABC):
     @abstractmethod
     def raspunde(self, request) -> Optional[str]:
         pass
+
+    def getContext(self):
+        return self.context
+
+    def setContext(self, _context):
+        self.context = _context
 
 
 class AbstractHandler(ResponseHandler):
@@ -72,10 +83,12 @@ class DiscoverHandler(AbstractHandler):
 
     def raspunde(self, mesaj:Mesaj) -> str:
         if mesaj.getTypeOfMessage() == "01":
-            print("\nResponding to DHCPDISCOVER")
+            print("\nOoo, raspundem la DHCPDISCOVER")
             mesaj.setTypeOfMessage("02") #setam ca mesaj DHCPOFFER
-            # mesaj.setYiaddr()
-            print("\nFinished responding to DHCPDISCOVER")
+            mesaj.setYiaddr(context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr))
+            # print("\nTEST : clasa address poolului la care avem acces + nr de ipuri " + str(type(context.address_pool)) + str(context.address_pool.total_ips))
+
+            print("\nAm terminat de raspuns la DHCPDISCOVER")
         else:
             return super().raspunde(mesaj)
 

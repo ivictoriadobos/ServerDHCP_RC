@@ -199,8 +199,7 @@ class Mesaj:
 
             # OPTIONS
             startIndex = endIndex
-            print("\n!!!!!!!!!!!!!!\tIf endIndex = 480, set endIndex = len(self.mesajDHCP); endIndex = " + str(endIndex))
-            endIndex += len(self.mesajDHCP) - 240*2 # 240*2 = lungimea by default a unui mesaj dhcp pana la optiuni in cifre/litere (240 de octeti)
+            endIndex = len(self.mesajDHCP)
 
 
             _optiuni = Optiuni.Optiuni(self.mesajDHCP[startIndex:endIndex])
@@ -233,9 +232,8 @@ class Mesaj:
             return mac
 
     def parseazaString(self, _string):
-        if _string == None:
-            _string = "Nothing to show"
-        print("\nMesaj : Parsing string : " + _string)
+
+        # print("\nMesaj : Parsing string : " + _string)
         if len(_string) == 0:
             print("\nMesaj : string length = 0! ")
             return False
@@ -247,7 +245,7 @@ class Mesaj:
                 string += chr(int(_string[startIndex:endIndex], base=16))
                 startIndex = endIndex
                 endIndex += 2
-            print("\nMesaj : returning this string after parsing : " + string )
+            # print("\nMesaj : returning this string after parsing : " + string )
             return string
 
     def getTypeOfMessage(self):

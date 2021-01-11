@@ -19,7 +19,7 @@ dhcp_discover = {
     'magic cookie': b'63825363',
     'options': b'350101' +  #option 53 : message type  = discover ; code = 35 (53 in decimal), length = 01 = 1 octet (adica 2 litere in hexa) , 01 e valoarea (dhcp discover)
                b'3d078125f59fefac54' +  #optiunea 61 : Client Identifier : mostly the chaddr + alte numere;
-               b'3204c0a80075' +  # option 50 : se cere o adresa ip specifica
+               b'3204c0a80004' +  # option 50 : se cere o adresa ip specifica
                b'0c09466c6f72696e2d5043' + #The laptop's name, option 12
                b'370c010f0306021c1f2179f92b' +  #optiunea 55 parameter request = lista de coduri cu optiunile cerute de client, aici spre exemplu e 1,15,3,6,2,28....
                b'ff'  #endmark
