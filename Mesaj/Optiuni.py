@@ -157,7 +157,7 @@ class Optiuni:
                 # Parameter Request List
             if cod_optiune == 55:
                 optiuni_cerute= []
-                optiuni = self.optiuni_data[cod_optiune]
+                optiuni = self.optiuni_data[cod_optiune] #punem sirul de octeti ce codeaza lista optiunilor
                 ind = 0
                 # print("\nOptiuni.decodeazaOptiuni; valoarea optiunii 55 este : ")
                 while ind < len(optiuni):

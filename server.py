@@ -90,8 +90,8 @@ class AscultaMesaj(State):
 
     def execute(self):
         while 1:
+            msg = None
             try:
-                msg = None
                 msg = self.server_socket.recvfrom(
                     4096)  # The return value is a pair (bytes, address) where bytes is a bytes object
                 # representing the data received and address is the address of the socket sending the data.
@@ -131,31 +131,10 @@ class AscultaMesaj(State):
 
         # print(self.responseHandler.__class__.__name__)
         self.responseHandler.raspunde(mesaj)
-        self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
+        # self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
 
         #tranzitia trebuie de dus in handler
-        self.context.transition_to(PrimesteRaspuns())
-        self.context.execute()
-
-
-class PrimesteRaspuns(State):
-    """
-    Implement a behavior associated with a state of the Context.
-    """
-
-    def execute(self):
-        while 1:
-            try:
-                msg = self.server_socket.recvfrom(
-                    4096)  # The return value is a pair (bytes, address) where bytes is a bytes object
-                # representing the data received and address is the address of the socket sending the data.
-                print("\nS:received this DHCP Request :" + msg[0].decode())
-                break
-            except:
-                break
-        print("\n\nThe rest : TBD...")
-        self.context.transition_to(AscultaMesaj())
-        self.context.execute()
+        self.execute()
 
 
 

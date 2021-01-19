@@ -96,8 +96,8 @@ class AddressPool:
                     requested.set_IP_unavailable()
                     return_ip = requested.ip
         #alocam o adresa random
-        else:
-            return_ip= self.getFreeAddress(_mac)
+            else:
+                return_ip= self.getFreeAddress(_mac)
 
         print("\nIP for client : " + return_ip)
         return return_ip

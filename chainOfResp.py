@@ -40,12 +40,6 @@ class ResponseHandler(ABC):
     def raspunde(self, request) -> Optional[str]:
         pass
 
-    def getContext(self):
-        return self.context
-
-    def setContext(self, _context):
-        self.context = _context
-
 
 class AbstractHandler(ResponseHandler):
     """
@@ -82,11 +76,43 @@ the chain.
 class DiscoverHandler(AbstractHandler):
 
     def raspunde(self, mesaj:Mesaj) -> str:
-        if mesaj.getTypeOfMessage() == "01":
+        if mesaj.getTypeOfMessage() == "DHCPDISCOVER":
             print("\nOoo, raspundem la DHCPDISCOVER")
-            mesaj.setTypeOfMessage("02") #setam ca mesaj DHCPOFFER
-            mesaj.setYiaddr(context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr))
-            # print("\nTEST : clasa address poolului la care avem acces + nr de ipuri " + str(type(context.address_pool)) + str(context.address_pool.total_ips))
+
+            #schimbam tipul mesajului  ca sa fie de tip raspuns de la server
+            mesaj.setTypeOfMessage("02") #setam ca mesaj de la server
+
+            #ii dam clientului o adresa
+            getIP = context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr)
+            mesaj.setYiaddr(getIP)
+
+            # ii punem identifierul de server
+            mesaj.optiuni[54] = context.address_pool.server_identifier
+
+            # configure the other options
+
+            if 55 in mesaj.optiuni.keys():
+                for optiune in mesaj.optiuni:
+
+
+            # if 55 in message.options:#daca avem lista de optiuni cerute de client
+            #     for option in message.options[55]:#printre optiunile cerute de client
+            #         if option in self.configurations:#daca aceste optiuni sunt oferite de serverul nostru
+            #             message.options[option] = self.configurations[option]
+            # else:
+            #     for i in message.options.keys():
+            #         if i in self.configurations:
+            #             message.options[i] = self.configurations[i]
+            #
+            # # remove useless option
+            # for roption in [option for option in message.options if option not in self.configurations and option != 53 and option != 51 and option != 54]:
+            #     message.options.pop(roption)
+            #
+            # # save options send for the future use
+            # self.optionSendInDiscovery[message.chaddr] = message.options
+            # logger.info(" DHCPOFFER ready to transmit!")
+            #
+
 
             print("\nAm terminat de raspuns la DHCPDISCOVER")
         else:
@@ -107,5 +133,6 @@ class ReleaseHandler(AbstractHandler):
             return f"Dog: I'll eat the {request}"
         else:
             return super().raspunde(request)
+
 
 

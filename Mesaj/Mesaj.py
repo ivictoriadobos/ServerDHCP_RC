@@ -249,7 +249,8 @@ class Mesaj:
             return string
 
     def getTypeOfMessage(self):
-        return self.op
+        print("\nTipul mesajului: " + self.optiuni[53])
+        return self.optiuni[53]
 
     def setTypeOfMessage(self, string):
         self.op = string
