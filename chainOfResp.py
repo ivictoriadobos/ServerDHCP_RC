@@ -1,10 +1,13 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Optional
+
+import server
 from Mesaj import Mesaj
 
 
 context = None
+
 """Referinta la contextul actual"""
 
 
@@ -77,7 +80,7 @@ class DiscoverHandler(AbstractHandler):
 
     def raspunde(self, mesaj:Mesaj) -> str:
         if mesaj.getTypeOfMessage() == "DHCPDISCOVER":
-            print("\nOoo, raspundem la DHCPDISCOVER")
+            print("\n\tRaspundem la DHCPDISCOVER\n")
 
             #schimbam tipul mesajului  ca sa fie de tip raspuns de la server
             mesaj.setTypeOfMessage("02") #setam ca mesaj de la server
@@ -86,35 +89,45 @@ class DiscoverHandler(AbstractHandler):
             getIP = context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr)
             mesaj.setYiaddr(getIP)
 
+
+
+            #implementarea ierarhiei modalitatii de alocare a lease timeului :
+            # 1: cererea clientului
+            # 2(nu): lease timeul predefinit pentru un anumit MAC
+            # 3: lease time default
+            if 51 in mesaj.optiuni:
+                requested_lease_time = int(mesaj.optiuni[51])
+                if requested_lease_time > 8000:
+                    requested_lease_time = context.selected_options[51]
+                mesaj.optiuni[51] = requested_lease_time
+            else:
+                    mesaj.optiuni[51] = context.selected_options[51]
+            print("\n\tClientul a primit lease time-ul:" + str(mesaj.optiuni[51]) )
+
+
+
             # ii punem identifierul de server
             mesaj.optiuni[54] = context.address_pool.server_identifier
 
             # configure the other options
 
             if 55 in mesaj.optiuni.keys():
-                for optiune in mesaj.optiuni:
+                for optiune in mesaj.optiuni[55]:
+                    # aici punem in optiunile mesajului chestiile configurate pe interfata serverului
+                    if optiune in context.selected_options.keys():
+                        mesaj.optiuni[optiune] = context.selected_options[optiune]
+            else:
+                for i in mesaj.optiuni.keys():
+                    if i in context.selected_options.keys():
+                        mesaj.optiuni[i] = context.selected_options[i]
+
+            for removeopt in [option for option in mesaj.optiuni if option not in context.selected_options and option!= 53 and option != 54 and option != 51]:
+                mesaj.optiuni.pop(removeopt)
+
+            return mesaj
 
 
-            # if 55 in message.options:#daca avem lista de optiuni cerute de client
-            #     for option in message.options[55]:#printre optiunile cerute de client
-            #         if option in self.configurations:#daca aceste optiuni sunt oferite de serverul nostru
-            #             message.options[option] = self.configurations[option]
-            # else:
-            #     for i in message.options.keys():
-            #         if i in self.configurations:
-            #             message.options[i] = self.configurations[i]
-            #
-            # # remove useless option
-            # for roption in [option for option in message.options if option not in self.configurations and option != 53 and option != 51 and option != 54]:
-            #     message.options.pop(roption)
-            #
-            # # save options send for the future use
-            # self.optionSendInDiscovery[message.chaddr] = message.options
-            # logger.info(" DHCPOFFER ready to transmit!")
-            #
-
-
-            print("\nAm terminat de raspuns la DHCPDISCOVER")
+            print("\n\tAm terminat de raspuns la DHCPDISCOVER\n")
         else:
             return super().raspunde(mesaj)
 

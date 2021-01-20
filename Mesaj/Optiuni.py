@@ -46,7 +46,7 @@ class Optiuni:
     # Optiunea 61 :This option is used by DHCP clients to specify their unique identifier.DHCP servers use this value to index their database of address bindings.
 
 #explicatii mai bune : http://wiki.snom.com/Networking/DHCP/Options
-    optiuni_valabile = [1,2,3,6,12,15,28,50,51,53,54,55]
+    optiuni_valabile = [1,2,3,6,12,15,28,51,53,54,55]
 
     def __init__(self, optiuni):
         self.optiuni = optiuni

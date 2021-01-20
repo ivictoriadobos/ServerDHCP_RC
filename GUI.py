@@ -71,6 +71,7 @@ class GUI:
             self.values_of_options[check] = val
             rowNum += 1
 
+
         for entry in self.entry_options:
             Label(option_frame, text="Option: " + str(entry) + ": " + self.options_name[entry]).grid(row=rowNum,
                                                                                                      column=0, sticky=W,
@@ -97,24 +98,26 @@ class GUI:
     def start_server(self):
         self.getInput()
 
-        thread = threading.Thread(target=server.start_server, args=[self.adresa_masca_lease, self.selected_options, self.address_pool]).start()
+        thread = threading.Thread(target=server.start_server, args=[self.adresa_masca, self.selected_options, self.address_pool]).start()
         # server.start_server()
 
     def getInput(self):
         adresa_retea = self.adresaRetea.get()
-        print("\nadresa_retea : " + adresa_retea)
+        print("\n\tadresa_retea : " + adresa_retea)
 
         masca = self.masca.get()
-        print("\nmasca : " + masca)
+        print("\n\tmasca : " + masca)
 
         leasetime = self.leaseTime.get()
-        self.adresa_masca_lease = {"adresa" : adresa_retea, "masca" : masca, "lease" : leasetime}
+
+        self.adresa_masca = {"adresa" : adresa_retea, "masca" : masca}
 
         #intai verificam daca adresa de retea, masca si leasetimeul sunt introduse corect
         if self.checkAddress(adresa_retea) and self.checkAddress(masca) and int(leasetime) > 0:
             self.address_pool = AddressPool.AddressPool(adresa_retea, masca)  # cream address poolul deoarece avem date corecte
 
-            if self.checkAndSaveOptions() == True:  # verificam inputurile optiunilor si le si salvam; daca sunt corecte si acestea trecem la urmt. pas
+            if self.checkAndSaveOptions() == True:  # verificam inputurile optiunilor si le si salvam; daca sunt corecte si acestea trecem la urmt.
+                self.selected_options[51] = leasetime
                 return # este totul ok si putem porni serverul
 
 
@@ -174,7 +177,7 @@ class GUI:
         # la optiunea 6 si 15 ne prefacem ca nu mai trebuie sa facem vreo verificare din moment ce se poate introduce cam orice combinatie litera/cifra
 
         for optiunek, optiunev in self.selected_options.items():
-            print("\nS-au ales optiunea " + str(optiunek) + "\n cu valoarea " + str(optiunev))
+            print("\nS-a ales optiunea " + str(optiunek) + "\n cu valoarea " + str(optiunev))
         return result
 #
 #
@@ -185,9 +188,3 @@ if __name__ == '__main__':
     serverr = GUI(root)
     root.mainloop()
 
-#
-# cred ca o idee mai buna de states ar fi AscultaMesaj, PrimesteRaspuns si asa in asculta mesaj putem primi si DISCOVER, REQUEST, RELEASE, le parsam, vedem
-# daca le "cunoastem", trimitem raspuns adecvat cu chainOfResp si apoi intram in PrimesteRaspuns unde primim raspunsul serverului, de exe request si noi trimitem ack
-#
-# ar trebui cred o referinta in ResponseHandler la context, astfel incat acolo sa se decida daca se schimba contextul sau nu.
-#

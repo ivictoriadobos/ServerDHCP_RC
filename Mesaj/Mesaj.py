@@ -1,3 +1,5 @@
+import binascii
+
 from Mesaj import Optiuni
 from time import time
 
@@ -249,7 +251,6 @@ class Mesaj:
             return string
 
     def getTypeOfMessage(self):
-        print("\nTipul mesajului: " + self.optiuni[53])
         return self.optiuni[53]
 
     def setTypeOfMessage(self, string):
@@ -257,3 +258,122 @@ class Mesaj:
 
     def setYiaddr(self, string):
         self.yiaddr = string
+
+
+    def messageToBytes(self):
+        mesaj = str(self.op) + str(self.htype) + str(self.hlen) + str(self.hops) + self.xid + self.secs + self.flags
+
+        mesaj += self.ipToBytes(self.ciaddr) + self.ipToBytes(self.yiaddr) + self.ipToBytes(self.siaddr) + self.ipToBytes(self.giaddr)
+
+        mesaj += self.macToBytes(self.chaddr)
+
+        mesaj += self.stringToBytes(self.sname) + '00' * (64 - len(self.sname))
+        mesaj += self.stringToBytes(self.file) + (128 - len(self.file)) * '00'
+
+        mesaj += self.magic_cookie
+
+        for option in self.optiuni:
+            if option == 1:
+                length = len(self.ipToBytes(self.optiuni[option])) / 2 #impartim la 2 fiindca 2 litere in hexa = 1 octet, iar noi dam lungimea in octeti
+                mesaj += "0" + str(option) + "0" + str(int(length)) + self.ipToBytes(self.optiuni[option])
+
+            if option == 3:
+                aux = self.optiuni[option].split(" ")
+                length = 0
+                buff = ""
+                for i in range(0, len(aux)):
+                    buff += self.ipToBytes(aux[i])
+                    length += len(self.ipToBytes(aux[i]))
+                mesaj += "0" + str(option) + "0" + str(int(length / 2)) + buff #presupunem si noi ca nu avem mai mult de 2 adrese date aici :)))
+
+            if option == 6:
+                aux = self.optiuni[option].split(" ")
+                length = 0
+                buff = ""
+                for i in range(0, len(aux)):
+                    buff += self.ipToBytes(aux[i])
+                    length += len(self.ipToBytes(aux[i]))
+                mesaj += "0" + str(option) + "0" + str(int(length / 2)) + buff
+
+            if option == 15:
+                length = len(self.optiuni[option])
+                code = "0" + str(hex(option))[2:]
+                if length < 10:
+                    mesaj += code + "0" + str(length) + self.stringToBytes(self.optiuni[option])
+                else:
+                    mesaj += code + str(length) + self.stringToBytes(self.optiuni[option])
+
+            if option == 28:
+                length = len(self.ipToBytes(self.optiuni[option])) / 2
+                mesaj += str(hex(option))[2:] + "0" + str(int(length)) + self.ipToBytes(self.optiuni[option])
+
+            if option == 51:
+                time = str(hex(self.optiuni[option]))[2:]
+                dim = len(time)
+                while dim < 8:
+                    time = "0" + time
+                    dim += 1
+                mesaj += str(hex(option))[2:] + "04" + time
+
+            # DHCP Message Type
+            if option == 53:
+                DHCPMessageTypeEncode = {
+                    "DHCPDISCOVER": 1,
+                    "DHCPOFFER": 2,
+                    "DHCPREQUEST": 3,
+                    "DHCPDECLINE": 4,
+                    "DHCPACK": 5,
+                    "DHCPNAK": 6,
+                    "DHCPRELEASE": 7,
+                    "DHCPINFORM": 8
+                }
+                mesaj += str(hex(option))[2:] + "01" + "0" + str(DHCPMessageTypeEncode[self.optiuni[option]])
+
+            # Server Identifier
+            if option == 54:
+                length = len(self.ipToBytes(self.optiuni[option])) / 2
+                mesaj += str(hex(option))[2:] + "0" + str(int(length)) + self.ipToBytes(
+                    self.optiuni[option])
+
+        mesaj += "ff"
+        mesaj = bytearray(mesaj.upper(), encoding="utf-8")
+        return mesaj
+
+
+    def ipToBytes(self, address):
+        addr = address.split(".")
+        if len(addr) == 4:
+            ipBytes = ""
+            for i in range(4):
+                # taiem primele 2 caractere pentu ca functia hex returneaza un numar de forma 0x348534.
+                data = hex(int(addr[i], base=10))[2:]
+                if int(data, base=16) < 0x10: # 9 in hexa ar fi 0x9, noi vrem 0x09
+                    data = "0" + data
+                ipBytes += data
+            return ipBytes
+        else:
+            return ''
+
+
+
+    def macToBytes(self, address):
+        mac = address.split(":")
+        if len(mac) == 6:
+            macBytes = ""
+            for i in range(6):
+                macBytes += mac[i]  #adresa mac e deja in hexa, doar ca e desfacuta in cate 6 octeti
+            # Adaugam zerouri
+            while len(macBytes) != 32:
+                macBytes += "0"
+            return macBytes
+        else:
+            return ''
+
+    def stringToBytes(self, string):
+        if string and len(string) < 128:
+            stringBytes = bytearray(string, encoding="utf-8")
+            stringBytes = binascii.hexlify(stringBytes)
+            stringBytes = stringBytes.decode("utf-8")
+            return stringBytes
+        else:
+            return ''

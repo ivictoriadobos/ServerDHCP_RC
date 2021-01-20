@@ -24,9 +24,9 @@ class Context:
    A reference to the current state of the Context.
    """
 
-    selected_options = {}
+    selected_options = {} #optiunile selectate din interfata
     address_pool : AddressPool = None
-    adresa_masca_leasetime ={}
+    adresa_masca ={}
 
 
 
@@ -130,21 +130,22 @@ class AscultaMesaj(State):
         """
 
         # print(self.responseHandler.__class__.__name__)
-        self.responseHandler.raspunde(mesaj)
-        # self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
+        mesajClient = self.responseHandler.raspunde(mesaj)
+        #mesajul e bun, trebuie de trimis la client
+        # self.server_socket.sendto()
+        self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
 
-        #tranzitia trebuie de dus in handler
         self.execute()
 
 
 
 
-def start_server(adresa_masca_lease, optiuni_selectate, address_pool):
+def start_server(adresa_masca, optiuni_selectate, address_pool):
     concrete_state = AscultaMesaj()
     context = Context(concrete_state)
 
     context.address_pool = address_pool
-    context.adresa_masca_leasetime = adresa_masca_lease
+    context.adresa_masca = adresa_masca
     context.selected_options = optiuni_selectate
     chainOfResp.context = context  #urat tare, stiu, da' altfel nu reusesc
     context.execute()
