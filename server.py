@@ -114,9 +114,6 @@ class AscultaMesaj(State):
             return
 
     def parseMessageReceived(self, message, ceva):
-        print("\nMesajul:")
-        print(message.decode("utf-8"))
-
 
         message = Mesaj.Mesaj(message.decode("utf-8"))
 
@@ -145,8 +142,8 @@ class AscultaMesaj(State):
         #si de afisat gen : serverul raspunde cu mesjul ...
         m = b''
         m=mesajClient.messageToBytes()
-        print()
-        self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
+
+        self.server_socket.sendto(m, self.client)
 
         self.execute()
 

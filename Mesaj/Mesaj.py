@@ -320,8 +320,6 @@ class Mesaj:
                     "DHCPRELEASE": 7,
                     "DHCPINFORM": 8
                 }
-                print(self.optiuni[53])
-                print(str(DHCPMessageTypeEncode[self.optiuni[53]]))
                 mesaj += str(hex(option))[2:] + "01" + "0" + str(DHCPMessageTypeEncode[self.optiuni[53]])
 
             # Server Identifier

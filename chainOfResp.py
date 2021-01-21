@@ -86,7 +86,6 @@ class DiscoverHandler(AbstractHandler):
             mesaj.op = "02"#setam ca mesaj de la server
 
             #ii dam clientului o adresa
-            #problema aiki
             getIP = context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr)
             mesaj.setYiaddr(getIP)
 
@@ -123,20 +122,32 @@ class DiscoverHandler(AbstractHandler):
             for removeopt in [option for option in mesaj.optiuni if option not in context.selected_options and option not in [ 53,54,51,50]]:
                 mesaj.optiuni.pop(removeopt)
 
+            print("\n\tAm terminat de raspuns la DHCPDISCOVER\n")
+
             return mesaj
 
 
-            print("\n\tAm terminat de raspuns la DHCPDISCOVER\n")
         else:
             return super().raspunde(mesaj)
 
 
 class RequestHandler(AbstractHandler):
-    def raspunde(self, request: Any) -> str:
-        if request == "Nut":
-            return f"Squirrel: I'll eat the {request}"
+    def raspunde(self, mesaj:Mesaj) -> str:
+        if mesaj.getTypeOfMessage() == "DHCPREQUEST":
+            print("\n\tRaspundem la DHCPREQUEST")
+
+            #schimbam tipul mesajului  ca sa fie de tip raspuns de la server + sa fie offer
+            mesaj.setTypeOfMessage("DHCPACK")
+            mesaj.op = "02"#setam ca mesaj de la server
+            print("\n\tAici ar trebui sa verificam daca mesajul de request se adreseaza serverului nostru inainte sa continuam, in caz contrar eliberam resursele alocate si dam drop la pachet")
+            print("\n\tAm terminat de raspuns la DHCPREQUEST\n")
+
+            return mesaj
+
+
         else:
-            return super().raspunde(request)
+            return super().raspunde(mesaj)
+
 
 
 class ReleaseHandler(AbstractHandler):
