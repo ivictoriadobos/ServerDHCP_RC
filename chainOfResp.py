@@ -62,7 +62,6 @@ class AbstractHandler(ResponseHandler):
 
     @abstractmethod
     def raspunde(self, mesaj: Mesaj) -> str:
-        print("\nType of messaje to respond to : " + mesaj.getTypeOfMessage())
         if self._next_handler:
             return self._next_handler.raspunde(mesaj)
 
@@ -80,12 +79,14 @@ class DiscoverHandler(AbstractHandler):
 
     def raspunde(self, mesaj:Mesaj) -> str:
         if mesaj.getTypeOfMessage() == "DHCPDISCOVER":
-            print("\n\tRaspundem la DHCPDISCOVER\n")
+            print("\n\tRaspundem la DHCPDISCOVER")
 
-            #schimbam tipul mesajului  ca sa fie de tip raspuns de la server
-            mesaj.setTypeOfMessage("02") #setam ca mesaj de la server
+            #schimbam tipul mesajului  ca sa fie de tip raspuns de la server + sa fie offer
+            mesaj.setTypeOfMessage("DHCPOFFER")
+            mesaj.op = "02"#setam ca mesaj de la server
 
             #ii dam clientului o adresa
+            #problema aiki
             getIP = context.address_pool.getIPAddress(mesaj.optiuni, mesaj.chaddr)
             mesaj.setYiaddr(getIP)
 
@@ -102,8 +103,6 @@ class DiscoverHandler(AbstractHandler):
                 mesaj.optiuni[51] = requested_lease_time
             else:
                     mesaj.optiuni[51] = context.selected_options[51]
-            print("\n\tClientul a primit lease time-ul:" + str(mesaj.optiuni[51]) )
-
 
 
             # ii punem identifierul de server
@@ -121,7 +120,7 @@ class DiscoverHandler(AbstractHandler):
                     if i in context.selected_options.keys():
                         mesaj.optiuni[i] = context.selected_options[i]
 
-            for removeopt in [option for option in mesaj.optiuni if option not in context.selected_options and option!= 53 and option != 54 and option != 51]:
+            for removeopt in [option for option in mesaj.optiuni if option not in context.selected_options and option not in [ 53,54,51,50]]:
                 mesaj.optiuni.pop(removeopt)
 
             return mesaj

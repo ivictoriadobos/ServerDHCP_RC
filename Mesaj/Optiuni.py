@@ -73,9 +73,6 @@ class Optiuni:
                 lungime_optiune = int(self.optiuni[idx:idx+2], base=16) *2
                 #lungimea optiunii reprezinta numarul de octeti al optiunii (valorii ei de fapt), prin urmare numarul efectiv de litere/cifre ce codeaza optiunea e numarul de octeti al optiunii * 2
 
-                print("\nOptiuni.parseazaOptiuni : just parsed option " + str(codul_optiunii) + " ; length of the option is : " + str(lungime_optiune))
-                print("This option looks like:\n\tcode : " + str(self.optiuni[idx-2:idx])+"\n\tlength, length*2 : " + str(self.optiuni[idx:idx+2]) + "," +
-                  str(int(self.optiuni[idx:idx+2], base=16)*2) + "\n\toptiuni_data[codul_optiunii] : " + str(self.optiuni[idx:idx+2+lungime_optiune]) + "\n")
                 if codul_optiunii in self.optiuni_valabile :
                     self.optiuni_data[codul_optiunii] = self.optiuni[idx+2 : idx+2+lungime_optiune]
                 idx+=lungime_optiune+4
@@ -139,7 +136,6 @@ class Optiuni:
             # Adresa ip ceruta
             if cod_optiune == 50:
                 self.optiuni_data[cod_optiune] = self.parseazaAdresaIP(self.optiuni_data[cod_optiune])
-                print("\nOptiuni.decodeazaOptiuni; clientul a cerut adresa ip : " + self.optiuni_data[cod_optiune])
 
             # Lease time ul cerut
             if cod_optiune == 51:
@@ -159,10 +155,8 @@ class Optiuni:
                 optiuni_cerute= []
                 optiuni = self.optiuni_data[cod_optiune] #punem sirul de octeti ce codeaza lista optiunilor
                 ind = 0
-                # print("\nOptiuni.decodeazaOptiuni; valoarea optiunii 55 este : ")
                 while ind < len(optiuni):
                     optiuni_cerute.append(int(optiuni[ind:ind+2], base=16))
-                    # print(str(int(optiuni[ind:ind+2], base=16)))
                     ind += 2
                 self.optiuni_data[cod_optiune] = [cod for cod in optiuni_cerute if cod in self.optiuni_valabile] #poate clientul a cerut si luna de pe cer, dar noi avem doar
                                                                                                                 # o submultime din optiunile posibile

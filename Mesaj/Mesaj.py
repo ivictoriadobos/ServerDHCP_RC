@@ -93,13 +93,11 @@ class Mesaj:
             # OP
             endIndex += 2
             self.op = self.mesajDHCP[startIndex:endIndex]
-            print("\nMesaj:\t op : " + str(self.op))
 
             # HTYPE
             startIndex = endIndex
             endIndex += 2
             self.htype = self.mesajDHCP[startIndex:endIndex]
-            print("\nMesaj:\t htype : " + str(self.htype))
 
 
             # HLEN
@@ -132,7 +130,6 @@ class Mesaj:
             endIndex += 8
             self.ciaddr = self.mesajDHCP[startIndex:endIndex]
             self.ciaddr = self.parseazaAdresaIP(self.ciaddr)
-            print("\nMesaj:\t ciaddr : " + str(self.ciaddr))
 
             if not self.ciaddr:
                 return -1
@@ -181,8 +178,7 @@ class Mesaj:
             if self.sname is False:
                 print("\nHere in sname")
                 return -1
-            else:
-                print("\n%%% SNAME = "  + self.sname)
+
 
             # FILE
             startIndex = endIndex
@@ -197,7 +193,6 @@ class Mesaj:
             startIndex = endIndex
             endIndex += 8
             self.magic_cookie = self.mesajDHCP[startIndex:endIndex]
-            print("\nMesaj:\t magic cookie : " + str(self.magic_cookie))
 
             # OPTIONS
             startIndex = endIndex
@@ -235,7 +230,6 @@ class Mesaj:
 
     def parseazaString(self, _string):
 
-        # print("\nMesaj : Parsing string : " + _string)
         if len(_string) == 0:
             print("\nMesaj : string length = 0! ")
             return False
@@ -247,14 +241,13 @@ class Mesaj:
                 string += chr(int(_string[startIndex:endIndex], base=16))
                 startIndex = endIndex
                 endIndex += 2
-            # print("\nMesaj : returning this string after parsing : " + string )
             return string
 
     def getTypeOfMessage(self):
         return self.optiuni[53]
 
     def setTypeOfMessage(self, string):
-        self.op = string
+        self.optiuni[53] = string
 
     def setYiaddr(self, string):
         self.yiaddr = string
@@ -308,7 +301,7 @@ class Mesaj:
                 mesaj += str(hex(option))[2:] + "0" + str(int(length)) + self.ipToBytes(self.optiuni[option])
 
             if option == 51:
-                time = str(hex(self.optiuni[option]))[2:]
+                time = str(hex(int(self.optiuni[option])))[2:]
                 dim = len(time)
                 while dim < 8:
                     time = "0" + time
@@ -327,7 +320,9 @@ class Mesaj:
                     "DHCPRELEASE": 7,
                     "DHCPINFORM": 8
                 }
-                mesaj += str(hex(option))[2:] + "01" + "0" + str(DHCPMessageTypeEncode[self.optiuni[option]])
+                print(self.optiuni[53])
+                print(str(DHCPMessageTypeEncode[self.optiuni[53]]))
+                mesaj += str(hex(option))[2:] + "01" + "0" + str(DHCPMessageTypeEncode[self.optiuni[53]])
 
             # Server Identifier
             if option == 54:
@@ -336,7 +331,7 @@ class Mesaj:
                     self.optiuni[option])
 
         mesaj += "ff"
-        mesaj = bytearray(mesaj.upper(), encoding="utf-8")
+        mesaj = bytes(mesaj.upper(), encoding="utf-8")
         return mesaj
 
 
@@ -377,3 +372,23 @@ class Mesaj:
             return stringBytes
         else:
             return ''
+
+    def printeazaMesaj(self):
+        print("\n~~~START OF MSG")
+        print("\nTipul mesajului : " + self.optiuni[53] )
+        print("\n\tOP:" + str(self.op))
+        print("\n\tXID:" + self.xid)
+        print("\n\tCIADDR:" + self.ciaddr)
+        print("\n\tYIADDR:" + self.yiaddr)
+        print("\n\tCHADDR" + self.chaddr)
+        print("\n\tMAGIC:" + self.magic_cookie)
+        print("\n\n\tOptiunile mesajului:")
+        for optiunek, optiunev in self.optiuni.items():
+            if str(type(optiunev)) in ["<class 'str'>", "<class 'int'>"]:
+                print("\n\t\tCod optiune: " + str(optiunek) + ", valoare optiune: " + str(optiunev))
+            else:
+                print("\n\t\tCod optiune: " + str(optiunek) + ", valoare optiune: ", end='')
+                for optiune in optiunev:
+                    print(optiune, end=' ')
+
+        print("\n~~~END OF MSG")

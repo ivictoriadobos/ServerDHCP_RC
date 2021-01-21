@@ -31,8 +31,6 @@ class AddressPool:
         self.total_ips = 2 ** nr_zeroes  # as formula says : nrOfIPs = 2^x-2, where x is the no of 0's in the subnet mask;
         # this does include the first(gateway) and the last (broadcast) addr
 
-        print("\nNr de ipuri pt masca " + _mask + "  = " + str(self.total_ips))
-        print("\nAdresa de retea:" + self.adresa_retea)
         # Build the address pool
         ip = []
         for x in _ip.split('.'):
@@ -49,12 +47,9 @@ class AddressPool:
                         ip[1] = 0
                         ip[0] += 1
             self.adreseIP.append(IPAddress(str(ip[0]) + '.' + str(ip[1]) + '.' + str(ip[2]) + '.' + str(ip[3])))
-            # print("\n\tappending this ip addr to the pool : " + str(ip[0]) + '.' + str(ip[1]) + '.' + str(ip[2]) + '.' + str(ip[3]))
 
         self.adresa_difuzie = str(ip[0]) + '.' + str(ip[1]) + '.' + str(ip[2]) + '.' + str(ip[3])
-        print("\nadresa_difuzie" + self.adresa_difuzie)
         self.server_identifier = str(ip[0]) + '.' + str(ip[1]) + '.' + str(ip[2]) + '.' + str(ip[3] - 1)
-        print("\nserver_identifier " + self.server_identifier)
 
         adreseIP = self.adreseIP.copy()
         for client_ip in adreseIP:
@@ -95,11 +90,11 @@ class AddressPool:
                     requested.setMac(_mac)
                     requested.set_IP_unavailable()
                     return_ip = requested.ip
-        #alocam o adresa random
-            else:
-                return_ip= self.getFreeAddress(_mac)
 
-        print("\nIP for client : " + return_ip)
+        #alocam o adresa random
+        if return_ip == "":
+            return_ip= self.getFreeAddress(_mac)
+
         return return_ip
 
     def findIPObjByIPAddr(self, _ip):

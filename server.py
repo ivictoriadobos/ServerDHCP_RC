@@ -38,7 +38,7 @@ class Context:
         The Context allows changing the State object at runtime.
         """
 
-        print(f"Context: Transition to {type(state).__name__}")
+        print(f"\n\t***Context: Transition to {type(state).__name__}")
         self._state = state
         self._state.context = self
 
@@ -68,7 +68,7 @@ class State(metaclass=abc.ABCMeta):
 
 
     def __init__(self):
-        print("Server is waiting for messages")
+        print("\n\t***Server is waiting for messages")
 
     @abc.abstractmethod
     def execute(self):
@@ -95,12 +95,12 @@ class AscultaMesaj(State):
                 msg = self.server_socket.recvfrom(
                     4096)  # The return value is a pair (bytes, address) where bytes is a bytes object
                 # representing the data received and address is the address of the socket sending the data.
-                print("\nS:AscultaMesaj a detectat un mesaj")
+                print("\n\t***Serverul a detectat un mesaj")
                 break
             except:
                 # pentru debug
                 frameinfo = getframeinfo(currentframe())
-                print("\nExcept in receiving from socket! find me at server.py, line :" + str(frameinfo.lineno))
+                print("\n\t***Except in receiving from socket! find me at server.py, line :" + str(frameinfo.lineno))
                 break
 
         if msg != None:
@@ -109,19 +109,25 @@ class AscultaMesaj(State):
                                                                                                 # msg[0] o ia razna functia si crede ca fiecare caracter din msg[0] e un parametru separat
                 tthread.start()
             except:
-                print("\nS:Thread can't be started!")
+                print("\n\t***Server : Thread can't be started!")
         else:
             return
 
     def parseMessageReceived(self, message, ceva):
+        print("\nMesajul:")
+        print(message.decode("utf-8"))
+
+
         message = Mesaj.Mesaj(message.decode("utf-8"))
 
         if message.parseazaMesaj() == -1:
-            print("\nS:Mesaj gresit, srry")
-            print("\nS:Try again!")
+            print("\n\t***Server : Mesaj gresit, srry")
             return
 
         else:
+
+            #de spart mesajul primit si de afisat : serverul a primit mesajul...
+            message.printeazaMesaj()
             self.reactioneazaLaMesaj(message)
 
     def reactioneazaLaMesaj(self, mesaj):
@@ -129,10 +135,17 @@ class AscultaMesaj(State):
         Aceasta functie termina starea WaitForDiscover prin trimiterea de mesaj offer catre client si schimbarea starii catre WaitForRequest.
         """
 
-        # print(self.responseHandler.__class__.__name__)
         mesajClient = self.responseHandler.raspunde(mesaj)
+        mesajClient.printeazaMesaj()
+
         #mesajul e bun, trebuie de trimis la client
-        # self.server_socket.sendto()
+        # self.server_socket.sendto
+
+        #de splituit mesajul pe care l-am trimis inapoi (pe care trebuie sa-l trimitem clientului)
+        #si de afisat gen : serverul raspunde cu mesjul ...
+        m = b''
+        m=mesajClient.messageToBytes()
+        print()
         self.server_socket.sendto(b'Mi-ai dat mesaj si ti-am raspuns, what else? ', self.client)
 
         self.execute()

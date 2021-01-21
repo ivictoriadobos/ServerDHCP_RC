@@ -96,6 +96,7 @@ class GUI:
         exit()
 
     def start_server(self):
+        print("\nServerul ofera optiunile 1,2,3,6,15,28,51")
         self.getInput()
 
         thread = threading.Thread(target=server.start_server, args=[self.adresa_masca, self.selected_options, self.address_pool]).start()
@@ -154,11 +155,8 @@ class GUI:
                     result = result and False  # este macar o adresa gresit introdusa
                 else:
                     adrese = re.split("\s", self.values_of_options[3].get())  # verificam fiecare adresa introdusa sa fie ok
-                    print("\nAdrese ruter: ")
                     for adresa in adrese:
-
-                        print("\n\t " + adresa)
-                        self.selected_options[3].append(adresa)
+                        self.selected_options[3] = adresa
                         result = result and self.checkAddress(adresa)
 
 
@@ -176,8 +174,9 @@ class GUI:
 
         # la optiunea 6 si 15 ne prefacem ca nu mai trebuie sa facem vreo verificare din moment ce se poate introduce cam orice combinatie litera/cifra
 
+        print("\nS-au ales din interfata optiunile de server:" , end='')
         for optiunek, optiunev in self.selected_options.items():
-            print("\nS-a ales optiunea " + str(optiunek) + "\n cu valoarea " + str(optiunev))
+            print(str(optiunek) + " cu valoarea " + str(optiunev) + "\n")
         return result
 #
 #
